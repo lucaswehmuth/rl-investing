@@ -1,0 +1,75 @@
+# MAX_EPISODES = 1_000_000
+MAX_EPISODES = 100_000
+
+# Tensorboard logging
+TENSORBOARD_SAVE = True
+TENSORBOARD_UPDATE = 10
+
+# Evaluation
+EVALUATE_EVERY_N_EPISODES = 10
+
+# Save model checkpoints during training
+SAVE_CHECKPOINTS = True
+CHECKPOINT_STEP = MAX_EPISODES/10
+
+# Load existing model checkpoint
+LOAD_MODEL = False
+MODEL_TO_LOAD = "checkpoints/TestDQN_30d_EAS=False_RAPC=False03-02-2021_19-07-39/TestDQN_30d_EAS=False_RAPC=False03-02-2021_19-07-39_200.pth"
+
+# Current state will have data for N-1 days before the current day (SND)
+STATE_N_DAYS = 7
+
+# End current episode after selling a stock (EAS)
+END_AFTER_SELL = False
+
+# Number of days until episode ends (EL)
+EPISODE_LENGTH = 30
+
+# Update reward on price change (RAPC)
+REWARD_AFTER_PRICE_CHANGE = True
+
+REWARD_BUY = 0
+REWARD_HOLD = 0
+REWARD_INVALID = 0
+
+# Dataset
+TRAIN_DATA = "CSCO_2000-2019.csv"
+VAL_DATA = "CSCO_2020.csv"
+
+# Algorithms
+DQN = "dqn"
+AC = "ac"
+PPO = "ppo"
+
+# Actions
+ACTION_HOLD = 0
+ACTION_BUY = 1
+ACTION_SELL = 2
+
+# DQN Settings
+GAMMA = 0.99
+TAU = 0.001
+BATCH_SIZE = 8
+EXPERIENCE_BUFFER_SIZE = 10000
+EXPERIENCE_START_SIZE = 1000
+LEARNING_RATE = 0.001
+SOFT_UPDATE = True
+# SYNC_TARGET = 1000
+SYNC_TARGET = 100
+EPSILON_DECAY_LAST_FRAME = 10**5
+EPSILON_START = 1.0
+EPSILON_FINAL = 0.02
+
+# PPO Settings
+PPO_LEARNING_RATE = 0.005
+PPO_GAMMA = 0.99
+# PPO_GAE_LAMBDA = 0.95
+PPO_CLIP = 0.2
+# PPO_CRITIC_DISCOUNT = 0.5
+# PPO_ENTROPY_BETA = 0.001
+# PPO_EPOCHS = 10
+# PPO_MINIBATCH_SIZE = 32
+PPO_STEPS_PER_BATCH = EPISODE_LENGTH * 4
+PPO_N_UPDATES_PER_ITERATION = 1
+# PPO_TARGET_REWARD = 2
+
