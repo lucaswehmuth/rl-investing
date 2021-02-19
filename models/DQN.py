@@ -1,4 +1,3 @@
-import math
 import numpy as np
 import collections
 import os
@@ -7,7 +6,6 @@ import Settings as cfg
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
 
 Experience = collections.namedtuple('Experience', field_names=['state', 'action', 'reward', 'done', 'new_state'])
@@ -22,7 +20,7 @@ def soft_update(local_model, target_model):
             tau (float): interpolation parameter 
         """
         for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):
-            target_param.data.copy_(cfg.TAU*local_param.data + (1.0-cfg.TAU)*target_param.data)
+            target_param.data.copy_(cfg.DQN_TAU*local_param.data + (1.0-cfg.DQN_TAU)*target_param.data)
 
 def calc_loss_diff(batch, net, tgt_net, device="cpu"):
     states, actions, rewards, dones, next_states = batch
@@ -38,7 +36,7 @@ def calc_loss_diff(batch, net, tgt_net, device="cpu"):
     next_state_values[done_mask] = 0.0
     next_state_values = next_state_values.detach()
 
-    expected_state_action_values = next_state_values * cfg.GAMMA + rewards_v
+    expected_state_action_values = next_state_values * cfg.DQN_GAMMA + rewards_v
     return nn.MSELoss()(state_action_values, expected_state_action_values)
 
 def calc_loss(batch, net, tgt_net, device="cpu"):
@@ -69,7 +67,7 @@ def calc_loss(batch, net, tgt_net, device="cpu"):
     next_state_values = tgt_net(next_states_v).gather(1, next_state_actions.unsqueeze(-1)).squeeze(-1)
     next_state_values[done_mask] = 0.0
 
-    expected_state_action_values = next_state_values.detach() * cfg.GAMMA + rewards_v
+    expected_state_action_values = next_state_values.detach() * cfg.DQN_GAMMA + rewards_v
     return nn.MSELoss()(state_action_values, expected_state_action_values)
 
 class ExperienceBuffer:
@@ -94,8 +92,8 @@ class DQN():
         self.qnet_target = TestDQN(obs_len, actions_n).to(device)
         print(self.qnet_local)
         print(self.qnet_target)
-        self.optimizer = optim.Adam(self.qnet_local.parameters(), lr=cfg.LEARNING_RATE)
-        self.exp_buffer = ExperienceBuffer(cfg.EXPERIENCE_BUFFER_SIZE)
+        self.optimizer = optim.Adam(self.qnet_local.parameters(), lr=cfg.DQN_LEARNING_RATE)
+        self.exp_buffer = ExperienceBuffer(cfg.DQN_EXPERIENCE_BUFFER_SIZE)
         self.device = device
 
     def save_checkpoint(self, name, i):
@@ -126,14 +124,14 @@ class DQN():
         self.exp_buffer.append(exp)
 
     def update(self, ep, writer):
-        if len(self.exp_buffer) >= cfg.EXPERIENCE_START_SIZE:
+        if len(self.exp_buffer) >= cfg.DQN_EXPERIENCE_START_SIZE:
         # Update target network with current weights
             # Soft update
-            if cfg.SOFT_UPDATE:
+            if cfg.DQN_SOFT_UPDATE:
                 soft_update(self.qnet_local, self.qnet_target)
 
                 # Hard update
-            elif ep % cfg.SYNC_TARGET == 0:
+            elif ep % cfg.DQN_SYNC_TARGET == 0:
                 self.qnet_target.load_state_dict(self.qnet_local.state_dict())
 
             # At this point we can proceed with training in random batches from the buffer
@@ -142,7 +140,7 @@ class DQN():
             self.optimizer.zero_grad()
 
             # Sample batch from buffer
-            batch = self.exp_buffer.sample(cfg.BATCH_SIZE)
+            batch = self.exp_buffer.sample(cfg.DQN_BATCH_SIZE)
 
             # Calculating loss
             loss_t = calc_loss(batch, self.qnet_local, self.qnet_target, device=self.device)

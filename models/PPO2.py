@@ -1,5 +1,4 @@
 import Settings as cfg
-import os
 import numpy as np
 import torch
 import torch.nn as nn
@@ -84,7 +83,7 @@ class PPO():
 
         # Save to memory
         # Store action and log_prob temporarily
-        self.last_action = action.detach().numpy()
+        self.last_action = action.detach().numpy()[0]
         self.last_log_probs = log_prob.detach()
         # self.memory.batch_log_probs.append(log_prob.detach())
         # self.memory.batch_acts.append(action.detach().numpy())
@@ -126,7 +125,7 @@ class PPO():
             # Iterate through all rewards in the episode. We go backwards for smoother calculation of each
             # discounted return (think about why it would be harder starting from the beginning)
             for rew in reversed(ep_rews):
-                discounted_reward = rew + discounted_reward * cfg.GAMMA
+                discounted_reward = rew + discounted_reward * cfg.PPO_GAMMA
                 batch_rtgs.insert(0, discounted_reward)
 
         # Convert the rewards-to-go into a tensor
@@ -189,7 +188,8 @@ class PPO():
 
     def update(self, ep, writer):
         # print("self.memory.batch_lens =", self.memory.batch_lens)
-        if self.memory.batch_lens == cfg.PPO_STEPS_PER_BATCH:
+        if self.memory.batch_lens >= cfg.PPO_STEPS_PER_BATCH:
+            # print("updated")
             batch_rtgs = self.compute_rtgs()
             batch_obs = torch.tensor(self.memory.batch_obs, dtype=torch.float)
             batch_acts = torch.tensor(self.memory.batch_acts, dtype=torch.float)

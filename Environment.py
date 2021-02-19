@@ -13,8 +13,10 @@ class Environment():
 		self.evalRun = False
 
 		# PPO
-		self.currentDate = random.randint(cfg.STATE_N_DAYS+1, len(self.data)-32)
-		self.currentValDate = random.randint(cfg.STATE_N_DAYS+1, len(self.val_data)-32)
+		# self.currentDate = random.randint(cfg.STATE_N_DAYS+1, len(self.data)-32)
+		# self.currentValDate = random.randint(cfg.STATE_N_DAYS+1, len(self.val_data)-32)
+		self.currentDate = random.randint(cfg.STATE_N_DAYS+1, len(self.data) - cfg.EPISODE_LENGTH - 2)
+		self.currentValDate = random.randint(cfg.STATE_N_DAYS+1, len(self.val_data) - cfg.EPISODE_LENGTH - 2)
 
 		self.episode_steps = 0
 
@@ -23,8 +25,10 @@ class Environment():
 		# Last day will also be taken out as it will be the final state
 		# self.currentDate = random.randint(cfg.STATE_N_DAYS+1, len(self.data)-2)
 		# self.currentValDate = random.randint(cfg.STATE_N_DAYS+1, len(self.val_data)-2)
-		self.currentDate = random.randint(cfg.STATE_N_DAYS+1, len(self.data)-32)
-		self.currentValDate = random.randint(cfg.STATE_N_DAYS+1, len(self.val_data)-32)
+		# self.currentDate = random.randint(cfg.STATE_N_DAYS+1, len(self.data)-32)
+		# self.currentValDate = random.randint(cfg.STATE_N_DAYS+1, len(self.val_data)-32)
+		self.currentDate = random.randint(cfg.STATE_N_DAYS+1, len(self.data) - cfg.EPISODE_LENGTH - 2)
+		self.currentValDate = random.randint(cfg.STATE_N_DAYS+1, len(self.val_data) - cfg.EPISODE_LENGTH - 2)
 		# self.evalRun = False
 
 		self.episode_steps = 0
@@ -68,7 +72,7 @@ class Environment():
 			profit = 0
 
 			if action == cfg.ACTION_BUY and active == 0:
-				reward = 0.01
+				reward = 0
 				price = self.obs.currentClosePrice
 
 				new_state = State(self.data, self.currentDate, price, 1)
@@ -89,22 +93,32 @@ class Environment():
 			elif action == cfg.ACTION_HOLD and active == 1:
 				reward = 0
 				if cfg.REWARD_AFTER_PRICE_CHANGE:
-					# reward = 100.0 * (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
 					reward = 10.0 * (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
+					# reward = (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
+
+					# if reward < 0:
+						# reward *= 10
+
 					# reward = (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
 
 				new_state = State(self.data, self.currentDate, buyPrice, active)
 
 			elif action == cfg.ACTION_HOLD and active == 0:
-				reward = -0.05
+				# Price went up and we did not buy => Small penalty
+				if (self.obs.currentClosePrice - self.obs.previousDayClosePrice) > 0:
+					reward = -0.01
+				# Price went down and we did not buy => Small reward
+				else:
+					reward = 0.01
+				# reward = -0.05
 				# reward = -0.01 * self.episode_steps
 				new_state = State(self.data, self.currentDate, buyPrice, active)
 
 			# Invalid action
 			else:
-				# reward = -0.01
+				reward = -1.0
 				# reward = -0.05 * self.episode_steps
-				reward = -100.0
+				# reward = -100.0
 				new_state = State(self.data, self.currentDate, buyPrice, active)
 				# action_performed = cfg.ACTION_HOLD
 
@@ -121,7 +135,7 @@ class Environment():
 			profit = 0
 
 			if action == cfg.ACTION_BUY and active == 0:
-				reward = 0.01
+				reward = 0
 				price = self.obs.currentClosePrice
 
 				# new_state = State(self.data, self.currentDate, buyPrice, 1)
@@ -144,24 +158,33 @@ class Environment():
 			elif action == cfg.ACTION_HOLD and active == 1:
 				reward = 0
 				if cfg.REWARD_AFTER_PRICE_CHANGE:
-					# reward = 100.0 * (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
 					reward = 10.0 * (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
+					# reward = 100.0 * (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
 					# reward = (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
+
+					# if reward < 0:
+						# reward *= 10
 
 				# new_state = State(self.data, self.currentDate, buyPrice, active)
 				new_state = State(self.val_data, self.currentValDate, buyPrice, active)
 
 			elif action == cfg.ACTION_HOLD and active == 0:
-				reward = -0.05
+				# Price went up and we did not buy => Small penalty
+				if (self.obs.currentClosePrice - self.obs.previousDayClosePrice) > 0:
+					reward = -0.01
+				# Price went down and we did not buy => Small reward
+				else:
+					reward = 0.01
+				# reward = -0.05
 				# reward = -0.01 * self.episode_steps
 				# new_state = State(self.data, self.currentDate, buyPrice, active)
 				new_state = State(self.val_data, self.currentValDate, buyPrice, active)
 
 			# Invalid action
 			else:
-				# reward = -0.01
+				reward = -1.0
 				# reward = -0.05 * self.episode_steps
-				reward = -100.0
+				# reward = -100.0
 				# new_state = State(self.data, self.currentDate, buyPrice, active)
 				new_state = State(self.val_data, self.currentValDate, buyPrice, active)
 				# action_performed = cfg.ACTION_HOLD
@@ -206,7 +229,7 @@ class State():
 		closePrices = df.close[start:currentDate].to_list()
 		lowPrices = df.low[start:currentDate].to_list()
 		highPrices = df.high[start:currentDate].to_list()
-		volumes = df.volume[start:currentDate].to_list()
+		# volumes = df.volume[start:currentDate].to_list()
 
 		rel_close, rel_low, rel_high = [], [], []
 		for i in range(cfg.STATE_N_DAYS):

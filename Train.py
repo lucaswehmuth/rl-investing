@@ -10,21 +10,13 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 # Local files
 import Settings as cfg
 from Agent import Agent
-from models.DQN import DQN
-from models.AC import AC
-from models.PPO2 import PPO
 from Environment import Environment
 
 import pandas as pd
-import numpy as np
-import random
-
 import torch
-import torch.nn as nn
-import torch.optim as optim
 from tensorboardX import SummaryWriter
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # Tensorboard
 # writer = SummaryWriter('runs/TestDQN_Checkpoint_test_1')
@@ -39,9 +31,10 @@ val_data = pd.read_csv(cfg.VAL_DATA)
 env = Environment(train_data, val_data)
 env.reset()
 
-# Setting up the algorithm and assigning to the agent
-# DQN
+######################## Setting up the algorithm and assigning to the agent ########################
+## DQN
 # _DQN_ = 1
+# from models.DQN import DQN
 # dqn = DQN(env.obs.shape[0], len(env.actions()), device)
 # if (cfg.LOAD_MODEL):
 # 	dqn.load_checkpoint()
@@ -51,25 +44,31 @@ env.reset()
 # if cfg.TENSORBOARD_SAVE:
 # 	writer = SummaryWriter('runs/' + run_name + date_time)
 
+## AC
 # _AC_ = 1
+# from models.AC import AC
 # ac = AC(env.obs.shape[0], len(env.actions()), device)
 # agent = Agent(env, ac, cfg.AC)
 
+# PPO
 _PPO_ = 1
+from models.PPO2 import PPO
 ppo = PPO(env.obs.shape[0], len(env.actions()), device)
 if (cfg.LOAD_MODEL):
 	ppo.load_checkpoint()
 agent = Agent(env, ppo, cfg.PPO)
-run_name = 'TestPPO_{}d_EAS={}_RAPC={}'.format(cfg.EPISODE_LENGTH, cfg.END_AFTER_SELL, cfg.REWARD_AFTER_PRICE_CHANGE)
+run_name = 'TestPPO_Visa_{}d_EAS={}_RAPC={}'.format(cfg.EPISODE_LENGTH, cfg.END_AFTER_SELL, cfg.REWARD_AFTER_PRICE_CHANGE)
 date_time = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
 # if cfg.TENSORBOARD_SAVE:
 writer = SummaryWriter('runs/' + run_name + date_time)
+#####################################################################################################
+
 
 # Reward and profit tracker
 eps_mean_rewards = []
 eps_profit_or_loss = []
-# eval_profit_or_loss = []
 
+# Evaluation runs counter
 eval_i = 0
 
 for i in range(cfg.MAX_EPISODES):
@@ -82,7 +81,7 @@ for i in range(cfg.MAX_EPISODES):
 
 	while not done:
 		if _DQN_:
-			epsilon = max(cfg.EPSILON_FINAL, cfg.EPSILON_START - i / cfg.EPSILON_DECAY_LAST_FRAME)
+			epsilon = max(cfg.DQN_EPSILON_FINAL, cfg.DQN_EPSILON_START - i / cfg.DQN_EPSILON_DECAY_LAST_FRAME)
 			action = agent.choose_action(epsilon, device=device)
 		else:
 			action = agent.choose_action(None, device=device)
@@ -91,11 +90,13 @@ for i in range(cfg.MAX_EPISODES):
 		new_state, reward, done, action_performed, profit = agent.env.step(action,agent.buyPrice,agent.active)
 
 		agent.learn(current_state, action_performed, reward, done, new_state)
-		agent.update(i, writer)
+		# agent.update(i, writer)
 		
 		rewards.append(reward)
 		profits.append(profit)
 	# Episode done
+
+	agent.update(i, writer)
 
 	# Store sum of profit/loss for the past episode
 	eps_profit_or_loss.append(sum(profits))
@@ -106,19 +107,21 @@ for i in range(cfg.MAX_EPISODES):
 		# mean_reward = round(sum(acc_rewards)/len(acc_rewards),4)
 		mean_reward = round(sum(eps_mean_rewards)/len(eps_mean_rewards), 4)
 		mean_profit = round(sum(eps_profit_or_loss)/len(eps_profit_or_loss),4)
+		total_profit_or_loss = round(sum(eps_profit_or_loss), 4)
 
 		if _DQN_:
-			writer.add_scalar('epsilon', epsilon, i)
-			print("Episode", i, "ended. Mean reward=", mean_reward, "| Mean profit=", mean_profit, "| epsilon =", epsilon)
+			if cfg.TENSORBOARD_SAVE:
+				writer.add_scalar('epsilon', epsilon, i)
+			print("Episode", i, "ended. Mean reward=", mean_reward, "| Mean profit=", mean_profit, "| Total profit/loss =", total_profit_or_loss, "| epsilon =", epsilon)
 		else:
-			print("Episode", i, "ended. Mean reward=", mean_reward, "| Mean profit=", mean_profit)
+			print("Episode", i, "ended. Mean reward=", mean_reward, "| Mean profit=", mean_profit, "| Total profit/loss =", total_profit_or_loss,)
 
 		if cfg.TENSORBOARD_SAVE:
 			writer.add_scalar('mean reward', mean_reward, i)
 			writer.add_scalar('mean profit', mean_profit, i)
+			writer.add_scalar('total profit or loss', total_profit_or_loss, i)
 
 		acc_reward = []
-		# total_profits = []
 		eps_profit_or_loss = []
 		eps_mean_rewards = []
 
@@ -138,20 +141,16 @@ for i in range(cfg.MAX_EPISODES):
 
 		while not done:
 			if _DQN_:
-				# epsilon = max(cfg.EPSILON_FINAL, cfg.EPSILON_START - i / cfg.EPSILON_DECAY_LAST_FRAME)
 				action = agent.choose_action(0, device=device)
 			else:
 				action = agent.choose_action(None, device=device)
 
 			new_state, reward, done, action_performed, profit = agent.env.step(action,agent.buyPrice,agent.active)
-
 			agent.val_update(new_state, done)
-
 			actions.append(action_performed)
 			eval_rewards.append(reward)
 			eval_profits.append(profit)
 
-		# eval_profit_or_loss.append(sum(eval_profits))
 		eval_mean_reward = round(sum(eval_rewards)/len(eval_rewards),4)
 		eval_total_profit = round(sum(eval_profits), 4)
 		if cfg.TENSORBOARD_SAVE:
