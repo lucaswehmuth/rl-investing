@@ -254,7 +254,7 @@ class FeedForwardNN(nn.Module):
         # self.layer1 = nn.Linear(in_dim, 256)
         # self.layer2 = nn.Linear(256, 256)
         # self.layer3 = nn.Linear(256, out_dim)
-
+        
         self.NN = nn.Sequential(
                 nn.Linear(in_dim, 256),
                 nn.ReLU(),

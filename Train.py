@@ -57,7 +57,7 @@ ppo = PPO(env.obs.shape[0], len(env.actions()), device)
 if (cfg.LOAD_MODEL):
 	ppo.load_checkpoint()
 agent = Agent(env, ppo, cfg.PPO)
-run_name = 'TestPPO_Visa_{}d_EAS={}_RAPC={}'.format(cfg.EPISODE_LENGTH, cfg.END_AFTER_SELL, cfg.REWARD_AFTER_PRICE_CHANGE)
+run_name = 'TestPPO_Johnson_{}d_EAS={}_RAPC={}'.format(cfg.EPISODE_LENGTH, cfg.END_AFTER_SELL, cfg.REWARD_AFTER_PRICE_CHANGE)
 date_time = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
 # if cfg.TENSORBOARD_SAVE:
 writer = SummaryWriter('runs/' + run_name + date_time)
