@@ -1,3 +1,11 @@
+DATASET_NAME = "Artificial_Handcrafted_15d"
+ARTIFICIAL_DATA = True
+
+# Flags for the current algo being used
+_DQN_ = 0
+_AC_ = 0
+_PPO_ = 1
+
 # MAX_EPISODES = 1_000_000
 MAX_EPISODES = 100_000
 
@@ -19,30 +27,54 @@ MODEL_TO_LOAD = "checkpoints/TestDQN_30d_EAS=False_RAPC=False03-02-2021_19-07-39
 # Current state will have data for N-1 days before the current day (SND)
 STATE_N_DAYS = 7
 
+# Environment starting date after reset
+RANDOM_START_DATE = False
+
 # End current episode after selling a stock (EAS)
-END_AFTER_SELL = False
+END_AFTER_SELL = 0
 
 # Number of days until episode ends (EL)
 EPISODE_LENGTH = 30
 
 # Update reward on price change (RAPC)
-REWARD_AFTER_PRICE_CHANGE = True
+REWARD_AFTER_PRICE_CHANGE = 1
 
 REWARD_BUY = 0
 REWARD_HOLD = 0
 REWARD_INVALID = 0
 
 # Dataset
+# RUN_FOLDER = "runs/"
+# RUN_NAME = "TestPPO_JNJ"
 # TRAIN_DATA = "data/JNJ_2000-2019.csv"
 # VAL_DATA = "data/JNJ_2020.csv"
-RUN_NAME = "TestPPO_Linear"
-TRAIN_DATA = "data/Artificial_Linear.csv"
-VAL_DATA = "data/Artificial_Linear.csv"
+# RUN_FOLDER = "runs_artificial/"
+# RUN_NAME = "PPO_Handcrafted_15d"
+# TRAIN_DATA = "data/Artificial_Handcrafted_15d.csv"
+# VAL_DATA = "data/Artificial_Handcrafted_15d.csv"
 
 # Algorithms
-DQN = "dqn"
-AC = "ac"
-PPO = "ppo"
+DQN = "DQN"
+AC = "AC"
+PPO = "PPO"
+
+if _DQN_ == 1:
+	ALGO_NAME = DQN
+if _AC_ == 1:
+	ALGO_NAME = AC
+if _PPO_ == 1:
+	ALGO_NAME = PPO
+
+RUN_NAME = "{}_{}".format(ALGO_NAME, DATASET_NAME)
+
+if ARTIFICIAL_DATA:
+	RUN_FOLDER = "runs_artificial/"
+	TRAIN_DATA = "data/{}.csv".format(DATASET_NAME)
+	VAL_DATA = "data/{}.csv".format(DATASET_NAME)
+else:
+	RUN_FOLDER = "runs/"
+	TRAIN_DATA = "data/{}_2000-2019.csv".format(DATASET_NAME)
+	VAL_DATA = "data/{}_2020.csv".format(DATASET_NAME)
 
 # Actions
 ACTION_HOLD = 0

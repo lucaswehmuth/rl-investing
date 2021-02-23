@@ -1,8 +1,3 @@
-# Flags for the current algo being used
-_DQN_ = 0
-_AC_ = 0
-_PPO_ = 0
-
 from datetime import datetime
 import os
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
@@ -16,13 +11,14 @@ import pandas as pd
 import torch
 from tensorboardX import SummaryWriter
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print(device.type)
+print()
+print("DATASET =", cfg.DATASET_NAME)
+print("ALGORITHM NAME =", cfg.ALGO_NAME)
 
-# Tensorboard
-# writer = SummaryWriter('runs/TestDQN_Checkpoint_test_1')
-# writer = SummaryWriter('runs/TestAC_9')
-# 'model_x_a={}_lr={}'.format(a, lr)
+# Torch device (CUDA if available)
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+print("DEVICE =", device.type)
+print()
 
 # Loading datasets
 train_data = pd.read_csv(cfg.TRAIN_DATA)
@@ -34,36 +30,34 @@ env.reset()
 
 ######################## Setting up the algorithm and assigning to the agent ########################
 ## DQN
-# _DQN_ = 1
-# from models.DQN import DQN
-# dqn = DQN(env.obs.shape[0], len(env.actions()), device)
-# if (cfg.LOAD_MODEL):
-# 	dqn.load_checkpoint()
-# agent = Agent(env, dqn, cfg.DQN)
-run_name = '{}_{}d_EAS={}_RAPC={}'.format(cfg.RUN_NAME, cfg.EPISODE_LENGTH, cfg.END_AFTER_SELL, cfg.REWARD_AFTER_PRICE_CHANGE)
-# date_time = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
-# if cfg.TENSORBOARD_SAVE:
-# 	writer = SummaryWriter('runs/' + run_name + date_time)
-
+if cfg._DQN_ == 1:
+	from models.DQN import DQN
+	dqn = DQN(env.obs.shape[0], len(env.actions()), device)
+	if (cfg.LOAD_MODEL):
+		dqn.load_checkpoint()
+	agent = Agent(env, dqn, cfg.DQN)
+	
 ## AC
-# _AC_ = 1
-# from models.AC import AC
-# ac = AC(env.obs.shape[0], len(env.actions()), device)
-# agent = Agent(env, ac, cfg.AC)
+if cfg._AC_ == 1:
+	from models.AC import AC
+	ac = AC(env.obs.shape[0], len(env.actions()), device)
+	if (cfg.LOAD_MODEL):
+		ac.load_checkpoint()
+	agent = Agent(env, ac, cfg.AC)
 
 # PPO
-_PPO_ = 1
-from models.PPO2 import PPO
-ppo = PPO(env.obs.shape[0], len(env.actions()), device)
-if (cfg.LOAD_MODEL):
-	ppo.load_checkpoint()
-agent = Agent(env, ppo, cfg.PPO)
-run_name = '{}_{}d_EAS={}_RAPC={}'.format(cfg.RUN_NAME, cfg.EPISODE_LENGTH, cfg.END_AFTER_SELL, cfg.REWARD_AFTER_PRICE_CHANGE)
-date_time = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
-# if cfg.TENSORBOARD_SAVE:
-writer = SummaryWriter('runs/' + run_name + date_time)
+if cfg._PPO_ == 1:
+	from models.PPO2 import PPO
+	ppo = PPO(env.obs.shape[0], len(env.actions()), device)
+	if (cfg.LOAD_MODEL):
+		ppo.load_checkpoint()
+	agent = Agent(env, ppo, cfg.PPO)
 #####################################################################################################
 
+# Tensorboard 
+run_name = '{}_EP{}d_EAS={}_RAPC={}_'.format(cfg.RUN_NAME, cfg.EPISODE_LENGTH, cfg.END_AFTER_SELL, cfg.REWARD_AFTER_PRICE_CHANGE)
+date_time = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
+writer = SummaryWriter(cfg.RUN_FOLDER + run_name + date_time)
 
 # Reward and profit tracker
 eps_mean_rewards = []
@@ -81,7 +75,7 @@ for i in range(cfg.MAX_EPISODES):
 	profits = []
 
 	while not done:
-		if _DQN_:
+		if cfg._DQN_:
 			epsilon = max(cfg.DQN_EPSILON_FINAL, cfg.DQN_EPSILON_START - i / cfg.DQN_EPSILON_DECAY_LAST_FRAME)
 			action = agent.choose_action(epsilon, device=device)
 		else:
@@ -110,7 +104,7 @@ for i in range(cfg.MAX_EPISODES):
 		mean_profit = round(sum(eps_profit_or_loss)/len(eps_profit_or_loss),4)
 		total_profit_or_loss = round(sum(eps_profit_or_loss), 4)
 
-		if _DQN_:
+		if cfg._DQN_:
 			if cfg.TENSORBOARD_SAVE:
 				writer.add_scalar('epsilon', epsilon, i)
 			print("Episode", i, "ended. Mean reward=", mean_reward, "| Mean profit=", mean_profit, "| Total profit/loss =", total_profit_or_loss, "| epsilon =", epsilon)
@@ -139,9 +133,10 @@ for i in range(cfg.MAX_EPISODES):
 		eval_rewards = []
 		eval_profits = []
 		actions = []
+		start_date = agent.env.currentValDate
 
 		while not done:
-			if _DQN_:
+			if cfg._DQN_:
 				action = agent.choose_action(0, device=device)
 			else:
 				action = agent.choose_action(None, device=device)
@@ -157,8 +152,9 @@ for i in range(cfg.MAX_EPISODES):
 		if cfg.TENSORBOARD_SAVE:
 			writer.add_scalar('eval mean reward', eval_mean_reward, eval_i)
 			writer.add_scalar('eval profit', eval_total_profit, eval_i)
-		print("Validation episode", eval_i, "ended. Mean reward =", eval_mean_reward, "| Total profit =", eval_total_profit)
-		print("Actions:", actions)
+		# print("Validation episode", eval_i, "ended. Mean reward =", eval_mean_reward, "| Total profit =", eval_total_profit, "(Start date =", start_date, ")")
+		print("Validation episode {} ended. Mean reward = {} | Total profit = {}".format(eval_i, eval_mean_reward, eval_total_profit))
+		print("Actions: {} (Start date = {})".format(actions, start_date))
 		print()
 		eval_i += 1
 	# End eval
