@@ -33,8 +33,10 @@ REWARD_HOLD = 0
 REWARD_INVALID = 0
 
 # Dataset
-TRAIN_DATA = "data/JNJ_2000-2019.csv"
-VAL_DATA = "data/JNJ_2020.csv"
+# TRAIN_DATA = "data/JNJ_2000-2019.csv"
+# VAL_DATA = "data/JNJ_2020.csv"
+TRAIN_DATA = "data/Artificial_Linear.csv"
+VAL_DATA = "data/Artificial_Linear.csv"
 
 # Algorithms
 DQN = "dqn"

@@ -41,14 +41,15 @@ class PPO():
         self.memory = PPOMemory()
         self.actor = FeedForwardNN(obs_len, actions_n).to(device)
         self.critic = FeedForwardNN(obs_len, 1).to(device)
-
+        print(self.actor)
+        print(self.critic)
         self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=cfg.PPO_LEARNING_RATE)
         self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=cfg.PPO_LEARNING_RATE)
 
         self.device = device
         
-        self.cov_var = torch.full(size=(actions_n,), fill_value=0.5)
-        self.cov_mat = torch.diag(self.cov_var)
+        self.cov_var = torch.full(size=(actions_n,), fill_value=0.5).to(self.device)
+        self.cov_mat = torch.diag(self.cov_var).to(self.device)
 
     def save_checkpoint(self, name, i):
         pass
@@ -83,7 +84,7 @@ class PPO():
 
         # Save to memory
         # Store action and log_prob temporarily
-        self.last_action = action.detach().numpy()[0]
+        self.last_action = action.cpu().detach().numpy()[0]
         self.last_log_probs = log_prob.detach()
         # self.memory.batch_log_probs.append(log_prob.detach())
         # self.memory.batch_acts.append(action.detach().numpy())
@@ -130,7 +131,7 @@ class PPO():
 
         # Convert the rewards-to-go into a tensor
         # print("len(batch_rtgs)=", len(batch_rtgs))
-        batch_rtgs = torch.tensor(batch_rtgs, dtype=torch.float)
+        batch_rtgs = torch.tensor(batch_rtgs, dtype=torch.float).to(self.device)
 
         return batch_rtgs
 
@@ -191,12 +192,12 @@ class PPO():
         if self.memory.batch_lens >= cfg.PPO_STEPS_PER_BATCH:
             # print("updated")
             batch_rtgs = self.compute_rtgs()
-            batch_obs = torch.tensor(self.memory.batch_obs, dtype=torch.float)
-            batch_acts = torch.tensor(self.memory.batch_acts, dtype=torch.float)
+            batch_obs = torch.tensor(self.memory.batch_obs, dtype=torch.float).to(self.device)
+            batch_acts = torch.tensor(self.memory.batch_acts, dtype=torch.float).to(self.device)
 
             # print("self.memory.batch_lens =", self.memory.batch_lens)            
             # print("len(self.memory.batch_log_probs)=", len(self.memory.batch_log_probs))
-            batch_log_probs = torch.tensor(self.memory.batch_log_probs, dtype=torch.float)
+            batch_log_probs = torch.tensor(self.memory.batch_log_probs, dtype=torch.float).to(self.device)
 
             # Calculate advantage at k-th iteration
             V, _ = self.evaluate(batch_obs, batch_acts)

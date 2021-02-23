@@ -17,6 +17,7 @@ import torch
 from tensorboardX import SummaryWriter
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+print(device.type)
 
 # Tensorboard
 # writer = SummaryWriter('runs/TestDQN_Checkpoint_test_1')
