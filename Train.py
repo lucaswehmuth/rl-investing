@@ -40,7 +40,7 @@ env.reset()
 # if (cfg.LOAD_MODEL):
 # 	dqn.load_checkpoint()
 # agent = Agent(env, dqn, cfg.DQN)
-# run_name = 'TestDQN_val_{}d_EAS={}_RAPC={}'.format(cfg.EPISODE_LENGTH, cfg.END_AFTER_SELL, cfg.REWARD_AFTER_PRICE_CHANGE)
+run_name = '{}_{}d_EAS={}_RAPC={}'.format(cfg.RUN_NAME, cfg.EPISODE_LENGTH, cfg.END_AFTER_SELL, cfg.REWARD_AFTER_PRICE_CHANGE)
 # date_time = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
 # if cfg.TENSORBOARD_SAVE:
 # 	writer = SummaryWriter('runs/' + run_name + date_time)
@@ -58,7 +58,7 @@ ppo = PPO(env.obs.shape[0], len(env.actions()), device)
 if (cfg.LOAD_MODEL):
 	ppo.load_checkpoint()
 agent = Agent(env, ppo, cfg.PPO)
-run_name = 'TestPPO_Johnson_{}d_EAS={}_RAPC={}'.format(cfg.EPISODE_LENGTH, cfg.END_AFTER_SELL, cfg.REWARD_AFTER_PRICE_CHANGE)
+run_name = '{}_{}d_EAS={}_RAPC={}'.format(cfg.RUN_NAME, cfg.EPISODE_LENGTH, cfg.END_AFTER_SELL, cfg.REWARD_AFTER_PRICE_CHANGE)
 date_time = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
 # if cfg.TENSORBOARD_SAVE:
 writer = SummaryWriter('runs/' + run_name + date_time)
