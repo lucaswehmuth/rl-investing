@@ -55,7 +55,7 @@ if cfg._PPO_ == 1:
 #####################################################################################################
 
 # Tensorboard 
-run_name = '{}_EP{}d_EAS={}_RAPC={}_'.format(cfg.RUN_NAME, cfg.EPISODE_LENGTH, cfg.END_AFTER_SELL, cfg.REWARD_AFTER_PRICE_CHANGE)
+run_name = '{}_RD={}_EP{}d_EAS={}_RAPC={}_'.format(cfg.RUN_NAME, cfg.RANDOM_START_DATE, cfg.EPISODE_LENGTH, cfg.END_AFTER_SELL, cfg.REWARD_AFTER_PRICE_CHANGE)
 date_time = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
 writer = SummaryWriter(cfg.RUN_FOLDER + run_name + date_time)
 

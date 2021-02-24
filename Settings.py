@@ -28,7 +28,7 @@ MODEL_TO_LOAD = "checkpoints/TestDQN_30d_EAS=False_RAPC=False03-02-2021_19-07-39
 STATE_N_DAYS = 7
 
 # Environment starting date after reset
-RANDOM_START_DATE = False
+RANDOM_START_DATE = 1
 
 # End current episode after selling a stock (EAS)
 END_AFTER_SELL = 0
