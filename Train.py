@@ -4,6 +4,7 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 # Local files
 import Settings as cfg
+from Utils import Logger
 from Agent import Agent
 from Environment import Environment
 
@@ -12,8 +13,6 @@ import torch
 from tensorboardX import SummaryWriter
 
 print()
-print("DATASET =", cfg.DATASET_NAME)
-print("ALGORITHM NAME =", cfg.ALGO_NAME)
 
 # Torch device (CUDA if available)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -55,9 +54,16 @@ if cfg._PPO_ == 1:
 #####################################################################################################
 
 # Tensorboard 
-run_name = '{}_RD={}_EP{}d_EAS={}_RAPC={}_'.format(cfg.RUN_NAME, cfg.RANDOM_START_DATE, cfg.EPISODE_LENGTH, cfg.END_AFTER_SELL, cfg.REWARD_AFTER_PRICE_CHANGE)
+run_name = '{}_LR={}_RDTrain={}_RDVal={}_EP{}d_EAS={}_RAPC={}_'.format(cfg.RUN_NAME, cfg.LEARNING_RATE, cfg.RANDOM_START_TRAINING_DATE, cfg.RANDOM_START_VAL_DATE , cfg.EPISODE_LENGTH, cfg.END_AFTER_SELL, cfg.REWARD_AFTER_PRICE_CHANGE)
 date_time = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
+# filename_path = cfg.RUN_FOLDER + run_name + date_time
 writer = SummaryWriter(cfg.RUN_FOLDER + run_name + date_time)
+# writer = SummaryWriter(filename_path)
+
+# Logger
+logger = Logger(cfg.RUN_FOLDER + run_name + date_time)
+logger.print_run_info()
+logger.print_algo_info(agent.algo)
 
 # Reward and profit tracker
 eps_mean_rewards = []
@@ -66,14 +72,15 @@ eps_profit_or_loss = []
 # Evaluation runs counter
 eval_i = 0
 
+# Main training loop
 for i in range(cfg.MAX_EPISODES):
-	# print("i=", i)
 	done = False
 	agent.env.evalRun = False
 	agent.env.reset()
 	rewards = []
 	profits = []
 
+	# Episode loop
 	while not done:
 		if cfg._DQN_:
 			epsilon = max(cfg.DQN_EPSILON_FINAL, cfg.DQN_EPSILON_START - i / cfg.DQN_EPSILON_DECAY_LAST_FRAME)
@@ -85,13 +92,15 @@ for i in range(cfg.MAX_EPISODES):
 		new_state, reward, done, action_performed, profit = agent.env.step(action,agent.buyPrice,agent.active)
 
 		agent.learn(current_state, action_performed, reward, done, new_state)
-		# agent.update(i, writer)
+		if cfg._DQN_:
+			agent.update(i, writer)
 		
 		rewards.append(reward)
 		profits.append(profit)
-	# Episode done
+	# End of episode
 
-	agent.update(i, writer)
+	if cfg._PPO_ or cfg._AC_:
+		agent.update(i, writer)
 
 	# Store sum of profit/loss for the past episode
 	eps_profit_or_loss.append(sum(profits))
@@ -107,14 +116,20 @@ for i in range(cfg.MAX_EPISODES):
 		if cfg._DQN_:
 			if cfg.TENSORBOARD_SAVE:
 				writer.add_scalar('epsilon', epsilon, i)
-			print("Episode", i, "ended. Mean reward=", mean_reward, "| Mean profit=", mean_profit, "| Total profit/loss =", total_profit_or_loss, "| epsilon =", epsilon)
+			# print("Episode", i, "ended. Mean reward=", mean_reward, "| Mean profit=", mean_profit, "| Total profit/loss =", total_profit_or_loss, "| epsilon =", epsilon)
+			# print("Episode {} ended. Mean reward = {} | Mean profit = {} | Total profit/loss = {} | epsilon = {}".format(i, mean_reward, mean_profit, total_profit_or_loss, epsilon))
+			logger.print_out("Episode {} ended. Mean reward = {} | Mean profit = {} | Total profit/loss = {} | epsilon = {}".format(i, mean_reward, mean_profit, total_profit_or_loss, epsilon))
+
 		else:
-			print("Episode", i, "ended. Mean reward=", mean_reward, "| Mean profit=", mean_profit, "| Total profit/loss =", total_profit_or_loss,)
+			# print("Episode", i, "ended. Mean reward=", mean_reward, "| Mean profit=", mean_profit, "| Total profit/loss =", total_profit_or_loss)
+			# print("Episode {} ended. Mean reward = {} | Mean profit = {} | Total profit/loss = {} | epsilon = {}".format(i, mean_reward, mean_profit, total_profit_or_loss))
+			logger.print_out("Episode {} ended. Mean reward = {} | Mean profit = {} | Total profit/loss = {} | epsilon = {}".format(i, mean_reward, mean_profit, total_profit_or_loss))
 
 		if cfg.TENSORBOARD_SAVE:
-			writer.add_scalar('mean reward', mean_reward, i)
-			writer.add_scalar('mean profit', mean_profit, i)
-			writer.add_scalar('total profit or loss', total_profit_or_loss, i)
+			# print("here")
+			writer.add_scalar('mean_reward', mean_reward, i)
+			writer.add_scalar('mean_profit', mean_profit, i)
+			writer.add_scalar('total_profit_or_loss', total_profit_or_loss, i)
 
 		acc_reward = []
 		eps_profit_or_loss = []
@@ -149,13 +164,20 @@ for i in range(cfg.MAX_EPISODES):
 
 		eval_mean_reward = round(sum(eval_rewards)/len(eval_rewards),4)
 		eval_total_profit = round(sum(eval_profits), 4)
+
 		if cfg.TENSORBOARD_SAVE:
-			writer.add_scalar('eval mean reward', eval_mean_reward, eval_i)
-			writer.add_scalar('eval profit', eval_total_profit, eval_i)
+			writer.add_scalar('eval_mean_reward', eval_mean_reward, eval_i)
+			writer.add_scalar('eval_profit', eval_total_profit, eval_i)
 		# print("Validation episode", eval_i, "ended. Mean reward =", eval_mean_reward, "| Total profit =", eval_total_profit, "(Start date =", start_date, ")")
-		print("Validation episode {} ended. Mean reward = {} | Total profit = {}".format(eval_i, eval_mean_reward, eval_total_profit))
-		print("Actions: {} (Start date = {})".format(actions, start_date))
-		print()
+		# print("Validation episode {} ended. Mean reward = {} | Total profit = {}".format(eval_i, eval_mean_reward, eval_total_profit))
+		logger.print_out("Validation episode {} ended. Mean reward = {} | Total profit = {}".format(eval_i, eval_mean_reward, eval_total_profit))
+
+		# print("Actions: {} (Start date = {})".format(actions, start_date))
+		logger.print_out("Actions: {} (Start date = {})".format(actions, start_date))
+
+		logger.print_out("")
+		# print()
+
 		eval_i += 1
 	# End eval
 

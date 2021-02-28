@@ -13,11 +13,14 @@ class Environment():
 		# PPO
 		# self.currentDate = random.randint(cfg.STATE_N_DAYS+1, len(self.data)-32)
 		# self.currentValDate = random.randint(cfg.STATE_N_DAYS+1, len(self.val_data)-32)
-		if cfg.RANDOM_START_DATE:
+		if cfg.RANDOM_START_TRAINING_DATE:
 			self.currentDate = random.randint(cfg.STATE_N_DAYS+1, len(self.data) - cfg.EPISODE_LENGTH - 2)
-			self.currentValDate = random.randint(cfg.STATE_N_DAYS+1, len(self.val_data) - cfg.EPISODE_LENGTH - 2)
 		else:
 			self.currentDate = int(cfg.STATE_N_DAYS+1)
+
+		if cfg.RANDOM_START_VAL_DATE:
+			self.currentValDate = random.randint(cfg.STATE_N_DAYS+1, len(self.val_data) - cfg.EPISODE_LENGTH - 2)
+		else:
 			self.currentValDate = int(cfg.EPISODE_LENGTH/2)
 
 		self.episode_steps = 0
@@ -29,11 +32,14 @@ class Environment():
 		# self.currentValDate = random.randint(cfg.STATE_N_DAYS+1, len(self.val_data)-2)
 		# self.currentDate = random.randint(cfg.STATE_N_DAYS+1, len(self.data)-32)
 		# self.currentValDate = random.randint(cfg.STATE_N_DAYS+1, len(self.val_data)-32)
-		if cfg.RANDOM_START_DATE:
+		if cfg.RANDOM_START_TRAINING_DATE:
 			self.currentDate = random.randint(cfg.STATE_N_DAYS+1, len(self.data) - cfg.EPISODE_LENGTH - 2)
-			self.currentValDate = random.randint(cfg.STATE_N_DAYS+1, len(self.val_data) - cfg.EPISODE_LENGTH - 2)
 		else:
 			self.currentDate = int(cfg.STATE_N_DAYS+1)
+
+		if cfg.RANDOM_START_VAL_DATE:
+			self.currentValDate = random.randint(cfg.STATE_N_DAYS+1, len(self.val_data) - cfg.EPISODE_LENGTH - 2)
+		else:
 			self.currentValDate = int(cfg.EPISODE_LENGTH/2)
 
 		self.episode_steps = 0

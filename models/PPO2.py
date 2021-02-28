@@ -39,8 +39,8 @@ class PPO():
         self.memory = PPOMemory()
         self.actor = FeedForwardNN(obs_len, actions_n).to(device)
         self.critic = FeedForwardNN(obs_len, 1).to(device)
-        print(self.actor)
-        print(self.critic)
+        # print(self.actor)
+        # print(self.critic)
         self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=cfg.PPO_LEARNING_RATE)
         self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=cfg.PPO_LEARNING_RATE)
 
@@ -48,6 +48,9 @@ class PPO():
         
         self.cov_var = torch.full(size=(actions_n,), fill_value=0.5).to(self.device)
         self.cov_mat = torch.diag(self.cov_var).to(self.device)
+
+    def get_nn_info(self):
+        return [self.actor, self.critic]
 
     def save_checkpoint(self, name, i):
         pass

@@ -90,11 +90,14 @@ class DQN():
     def __init__(self, obs_len, actions_n, device):
         self.qnet_local = TestDQN(obs_len, actions_n).to(device)
         self.qnet_target = TestDQN(obs_len, actions_n).to(device)
-        print(self.qnet_local)
-        print(self.qnet_target)
+        # print(self.qnet_local)
+        # print(self.qnet_target)
         self.optimizer = optim.Adam(self.qnet_local.parameters(), lr=cfg.DQN_LEARNING_RATE)
         self.exp_buffer = ExperienceBuffer(cfg.DQN_EXPERIENCE_BUFFER_SIZE)
         self.device = device
+
+    def get_nn_info(self):
+        return [self.qnet_local, self.qnet_target]
 
     def save_checkpoint(self, name, i):
         checkpoint = {'qnet_local_dict': self.qnet_local.state_dict(),
