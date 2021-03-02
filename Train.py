@@ -123,7 +123,7 @@ for i in range(cfg.MAX_EPISODES):
 		else:
 			# print("Episode", i, "ended. Mean reward=", mean_reward, "| Mean profit=", mean_profit, "| Total profit/loss =", total_profit_or_loss)
 			# print("Episode {} ended. Mean reward = {} | Mean profit = {} | Total profit/loss = {} | epsilon = {}".format(i, mean_reward, mean_profit, total_profit_or_loss))
-			logger.print_out("Episode {} ended. Mean reward = {} | Mean profit = {} | Total profit/loss = {} | epsilon = {}".format(i, mean_reward, mean_profit, total_profit_or_loss))
+			logger.print_out("Episode {} ended. Mean reward = {} | Mean profit = {} | Total profit/loss = {}".format(i, mean_reward, mean_profit, total_profit_or_loss))
 
 		if cfg.TENSORBOARD_SAVE:
 			# print("here")

@@ -4,9 +4,9 @@ ARTIFICIAL_DATA = True
 # ARTIFICIAL_DATA = False
 
 # Flags for the current algo being used
-_DQN_ = 1
+_DQN_ = 0
 _AC_ = 0
-_PPO_ = 0
+_PPO_ = 1
 
 # MAX_EPISODES = 1_000_000
 MAX_EPISODES = 100_000
