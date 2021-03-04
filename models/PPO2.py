@@ -1,5 +1,6 @@
 import Settings as cfg
 import numpy as np
+import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -53,10 +54,22 @@ class PPO():
         return [self.actor, self.critic]
 
     def save_checkpoint(self, name, i):
-        pass
+        checkpoint = {'actor_dict': self.actor.state_dict(),
+                    'critic_dict': self.critic.state_dict(),
+                    'actor_optimizer': self.actor_optimizer.state_dict(),
+                    'critic_optimizer': self.critic_optimizer.state_dict()
+                        }
+        path_str = "checkpoints/"+name+"/"
+        os.makedirs(path_str, exist_ok=True)
+        check_name = name+"_"+str(i)+".pth"
+        torch.save(checkpoint, path_str+check_name)
 
     def load_checkpoint(self):
-        pass
+        checkpoint = torch.load(cfg.MODEL_TO_LOAD)
+        self.actor.load_state_dict(checkpoint['actor_dict'])
+        self.critic.load_state_dict(checkpoint['critic_dict'])
+        self.actor_optimizer.load_state_dict(checkpoint['actor_optimizer'])
+        self.critic_optimizer.load_state_dict(checkpoint['critic_optimizer'])
 
     # def action(self, obs):
     #     dist, value = self.ac(obs)

@@ -34,7 +34,6 @@ class Logger():
 		self.print_out("EPISODE_LENGTH = {}".format(cfg.EPISODE_LENGTH))
 		self.print_out("REWARD_AFTER_PRICE_CHANGE = {}".format(cfg.REWARD_AFTER_PRICE_CHANGE))
 		self.print_out("ALGO_NAME = {}".format(cfg.ALGO_NAME))
-		self.print_out("REWARD_AFTER_PRICE_CHANGE = {}".format(cfg.REWARD_AFTER_PRICE_CHANGE))
 		
 		if cfg.ALGO_NAME == cfg.DQN:
 			self.print_out("")
