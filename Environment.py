@@ -83,13 +83,13 @@ class Environment():
 			profit = 0
 
 			if action == cfg.ACTION_BUY and active == 0:
-				reward = 0
+				reward = cfg.REWARD_BUY
 				price = self.obs.currentClosePrice
 
 				new_state = State(self.data, self.currentDate, price, 1)
 
 			elif action == cfg.ACTION_SELL and active == 1:
-				reward = 100.0 * (self.obs.currentClosePrice - buyPrice) / buyPrice
+				reward = cfg.REWARD_SELL_MULTIPLIER * (self.obs.currentClosePrice - buyPrice) / buyPrice
 				# if reward > 0:
 				# 	reward = 1
 				# else:
@@ -104,7 +104,8 @@ class Environment():
 			elif action == cfg.ACTION_HOLD and active == 1:
 				reward = 0
 				if cfg.REWARD_AFTER_PRICE_CHANGE:
-					reward = 10.0 * (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
+					# reward = cfg.REWARD_HOLD_ACTIVE_MULTIPLIER * (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
+					reward = cfg.REWARD_HOLD_ACTIVE_MULTIPLIER * (self.obs.currentClosePrice - buyPrice) / buyPrice
 					# reward = (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
 
 					# if reward < 0:
@@ -117,17 +118,16 @@ class Environment():
 			elif action == cfg.ACTION_HOLD and active == 0:
 				# Price went up and we did not buy => Small penalty
 				if (self.obs.currentClosePrice - self.obs.previousDayClosePrice) > 0:
-					reward = -0.01
-				# Price went down and we did not buy => Small reward
+					reward = cfg.REWARD_HOLD_INACTIVE_PRICE_UP
+				# Price went down and we did not buy => No reward
 				else:
-					reward = 0.01
-				# reward = -0.05
-				# reward = -0.01 * self.episode_steps
+					reward = cfg.REWARD_HOLD_INACTIVE_PRICE_DOWN
+
 				new_state = State(self.data, self.currentDate, buyPrice, active)
 
 			# Invalid action
 			else:
-				reward = -1.0
+				reward = cfg.REWARD_INVALID
 				# reward = -0.05 * self.episode_steps
 				# reward = -100.0
 				new_state = State(self.data, self.currentDate, buyPrice, active)
@@ -146,14 +146,14 @@ class Environment():
 			profit = 0
 
 			if action == cfg.ACTION_BUY and active == 0:
-				reward = 0
+				reward = cfg.REWARD_BUY
 				price = self.obs.currentClosePrice
 
 				# new_state = State(self.data, self.currentDate, buyPrice, 1)
 				new_state = State(self.val_data, self.currentValDate, price, 1)
 
 			elif action == cfg.ACTION_SELL and active == 1:
-				reward = 100.0 * (self.obs.currentClosePrice - buyPrice) / buyPrice
+				reward = cfg.REWARD_SELL_MULTIPLIER * (self.obs.currentClosePrice - buyPrice) / buyPrice
 				# if reward > 0:
 				# 	reward = 1
 				# else:
@@ -169,7 +169,8 @@ class Environment():
 			elif action == cfg.ACTION_HOLD and active == 1:
 				reward = 0
 				if cfg.REWARD_AFTER_PRICE_CHANGE:
-					reward = 10.0 * (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
+					# reward = 10.0 * (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
+					reward = cfg.REWARD_HOLD_ACTIVE_MULTIPLIER * (self.obs.currentClosePrice - buyPrice) / buyPrice
 					# reward = 100.0 * (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
 					# reward = (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
 
@@ -182,10 +183,11 @@ class Environment():
 			elif action == cfg.ACTION_HOLD and active == 0:
 				# Price went up and we did not buy => Small penalty
 				if (self.obs.currentClosePrice - self.obs.previousDayClosePrice) > 0:
-					reward = -0.01
+					reward = cfg.REWARD_HOLD_INACTIVE_PRICE_UP
+
 				# Price went down and we did not buy => Small reward
 				else:
-					reward = 0.01
+					reward = cfg.REWARD_HOLD_INACTIVE_PRICE_DOWN
 				# reward = -0.05
 				# reward = -0.01 * self.episode_steps
 				# new_state = State(self.data, self.currentDate, buyPrice, active)
@@ -193,7 +195,7 @@ class Environment():
 
 			# Invalid action
 			else:
-				reward = -1.0
+				reward = cfg.REWARD_INVALID
 				# reward = -0.05 * self.episode_steps
 				# reward = -100.0
 				# new_state = State(self.data, self.currentDate, buyPrice, active)
