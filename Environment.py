@@ -3,6 +3,8 @@ import random
 
 class Environment():
 	def __init__(self, data, val_data):
+		random.seed(999)
+		
 		# self.train_data = train_data
 		self.val_data = val_data
 		self.data = data
