@@ -96,7 +96,7 @@ class Environment():
 			if self.evalRun == False:
 				new_state = State(self.data, self.currentDate, price, 1)
 			else:
-				new_state = State(self.data, self.currentValDate, price, 1)
+				new_state = State(self.val_data, self.currentValDate, price, 1)
 
 		elif action == cfg.ACTION_SELL and active == 1:
 			profit = self.obs.currentClosePrice - buyPrice
@@ -109,7 +109,7 @@ class Environment():
 			if self.evalRun == False:
 				new_state = State(self.data, self.currentDate, 0, 0)
 			else:
-				new_state = State(self.data, self.currentValDate, 0, 0)
+				new_state = State(self.val_data, self.currentValDate, 0, 0)
 
 		elif action == cfg.ACTION_HOLD and active == 1:
 			reward = 0
@@ -120,7 +120,7 @@ class Environment():
 			if self.evalRun == False:
 				new_state = State(self.data, self.currentDate, buyPrice, active)
 			else:
-				new_state = State(self.data, self.currentValDate, buyPrice, active)
+				new_state = State(self.val_data, self.currentValDate, buyPrice, active)
 
 		elif action == cfg.ACTION_HOLD and active == 0:
 			# Price went up and we did not buy => Small penalty
@@ -133,7 +133,7 @@ class Environment():
 			if self.evalRun == False:
 				new_state = State(self.data, self.currentDate, buyPrice, active)
 			else:
-				new_state = State(self.data, self.currentValDate, buyPrice, active)
+				new_state = State(self.val_data, self.currentValDate, buyPrice, active)
 
 		# Invalid action
 		else:
@@ -142,7 +142,7 @@ class Environment():
 			if self.evalRun == False:
 				new_state = State(self.data, self.currentDate, buyPrice, active)
 			else:
-				new_state = State(self.data, self.currentValDate, buyPrice, active)
+				new_state = State(self.val_data, self.currentValDate, buyPrice, active)
 			# action_performed = cfg.ACTION_HOLD
 
 		if cfg.ATTENTION_LAYER:
