@@ -99,13 +99,13 @@ class DQN():
     def get_nn_info(self):
         return [self.qnet_local, self.qnet_target]
 
-    def save_checkpoint(self, name, i):
+    def save_checkpoint(self, folder, name, i):
         checkpoint = {'qnet_local_dict': self.qnet_local.state_dict(),
                     'qnet_target_dict': self.qnet_target.state_dict(),
                     'optimizer': self.optimizer.state_dict()
                         }
 
-        path_str = "checkpoints/"+name+"/"
+        path_str = "checkpoints/"+folder+"/"
         os.makedirs(path_str, exist_ok=True)
         check_name = name+"_"+str(i)+".pth"
         torch.save(checkpoint, path_str+check_name)

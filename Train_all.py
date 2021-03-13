@@ -153,7 +153,7 @@ for df in cfg.ALL_DATASETS:
 		if i % cfg.CHECKPOINT_STEP == 0:
 			if cfg.SAVE_CHECKPOINTS:
 				# agent.algo.save_checkpoint(run_name + date_time, i)
-				agent.algo.save_checkpoint(cfg.RUN_FOLDER + run_name + date_time, i)
+				agent.algo.save_checkpoint(cfg.RUN_FOLDER, run_name + date_time, i)
 
 		# Evaluation run (1 episode)
 		if i % cfg.EVALUATE_EVERY_N_EPISODES == 0:
