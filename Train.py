@@ -26,6 +26,8 @@ val_data = pd.read_csv(cfg.VAL_DATA)
 # Creating environment
 env = Environment(train_data, val_data)
 env.reset()
+# print(env.obs.shape[0])
+# exit()
 
 ######################## Setting up the algorithm and assigning to the agent ########################
 ## DQN
@@ -71,6 +73,7 @@ eps_profit_or_loss = []
 
 # Evaluation runs counter
 eval_i = 0
+eval_acc_profit = 0
 
 # Main training loop
 for i in range(cfg.MAX_EPISODES):
@@ -162,6 +165,7 @@ for i in range(cfg.MAX_EPISODES):
 			actions.append(action_performed)
 			eval_rewards.append(reward)
 			eval_profits.append(profit)
+			eval_acc_profit = round(eval_acc_profit + profit, 2)
 
 		eval_mean_reward = round(sum(eval_rewards)/len(eval_rewards),4)
 		eval_total_profit = round(sum(eval_profits), 4)
@@ -169,12 +173,18 @@ for i in range(cfg.MAX_EPISODES):
 		if cfg.TENSORBOARD_SAVE:
 			writer.add_scalar('eval_mean_reward', eval_mean_reward, eval_i)
 			writer.add_scalar('eval_profit', eval_total_profit, eval_i)
+			writer.add_scalar('eval_acc_profit', eval_acc_profit, eval_i)
 		# print("Validation episode", eval_i, "ended. Mean reward =", eval_mean_reward, "| Total profit =", eval_total_profit, "(Start date =", start_date, ")")
 		# print("Validation episode {} ended. Mean reward = {} | Total profit = {}".format(eval_i, eval_mean_reward, eval_total_profit))
-		logger.print_out("Validation episode {} ended. Mean reward = {} | Total profit = {}".format(eval_i, eval_mean_reward, eval_total_profit))
+		logger.print_out("Validation episode {} ended. Mean reward = {} | Total profit = {} | Acc profit = {}".format(eval_i, eval_mean_reward, eval_total_profit, eval_acc_profit))
 
 		# print("Actions: {} (Start date = {})".format(actions, start_date))
 		logger.print_out("Actions: {} (Start date = {})".format(actions, start_date))
+
+		# rounded_obs = [round(x,2) for x in agent.env.obs.flatten()]
+		# logger.print_out("obs: {}".format(rounded_obs))
+		# logger.print_out("attention_probs: {}".format(agent.env.attention_probs))
+		# logger.print_out("attention_obs: {}".format(agent.env.attention_obs))
 
 		logger.print_out("")
 		# print()

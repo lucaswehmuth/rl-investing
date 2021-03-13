@@ -1,9 +1,10 @@
 import Settings as cfg
+from models.SimpleAttention import SimpleAttention
 import random
+random.seed(999)
 
 class Environment():
 	def __init__(self, data, val_data):
-		random.seed(999)
 		
 		# self.train_data = train_data
 		self.val_data = val_data
@@ -50,6 +51,10 @@ class Environment():
 			self.obs = State(self.data, self.currentDate, 0, 0)
 		else:
 			self.obs = State(self.val_data, self.currentValDate, 0, 0)
+
+		self.attention = SimpleAttention(self.obs.shape[0])
+		self.attention_probs = [1] * self.obs.shape[0]
+		self.attention_obs = self.obs.flatten()
 
 	def actions(self):
 		return [cfg.ACTION_HOLD, cfg.ACTION_BUY, cfg.ACTION_SELL]
@@ -135,8 +140,19 @@ class Environment():
 				new_state = State(self.data, self.currentDate, buyPrice, active)
 				# action_performed = cfg.ACTION_HOLD
 
+			if cfg.ATTENTION_LAYER:
+				new_current_price = new_state.currentClosePrice
+				attention_probs = self.attention.fit(self.obs.flatten(), new_current_price)
+				attention_probs = attention_probs.detach().numpy()[0]
+				self.attention_probs = [round(x, 4) for x in attention_probs]
+				self.attention_obs = [round(a*b, 4) for a,b in zip(new_state.flatten(), attention_probs)]
+
 			self.obs = new_state
 			
+			# self.attention_obs = [round(a*b, 4) for a,b in zip(new_state.flatten(), attention_probs)]
+			# self.attention_obs = [round(a+(a*b), 4) for a,b in zip(new_state.flatten(), attention_probs)]
+			
+			# return self.attention_obs, reward, done, action_performed, profit
 			return new_state.flatten(), reward, done, action_performed, profit
 
 		# Validation step			
@@ -204,8 +220,19 @@ class Environment():
 				new_state = State(self.val_data, self.currentValDate, buyPrice, active)
 				# action_performed = cfg.ACTION_HOLD
 
+			if cfg.ATTENTION_LAYER:
+				new_current_price = new_state.currentClosePrice
+				attention_probs = self.attention.fit(self.obs.flatten(), new_current_price)
+				attention_probs = attention_probs.detach().numpy()[0]
+				self.attention_probs = [round(x, 4) for x in attention_probs]
+				self.attention_obs = [round(a*b, 4) for a,b in zip(new_state.flatten(), attention_probs)]
+
 			self.obs = new_state
+
+			# self.attention_obs = [round(a*b, 4) for a,b in zip(new_state.flatten(), attention_probs)]
+			# self.attention_obs = [round(a+(a*b), 4) for a,b in zip(new_state.flatten(), attention_probs)]
 			
+			# return self.attention_obs, reward, done, action_performed, profit
 			return new_state.flatten(), reward, done, action_performed, profit
 
 

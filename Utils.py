@@ -37,13 +37,14 @@ class Logger():
 		self.print_out("REWARD_BUY = {}".format(cfg.REWARD_BUY))
 		self.print_out("REWARD_SELL_MULTIPLIER = {}".format(cfg.REWARD_SELL_MULTIPLIER))
 		self.print_out("REWARD_HOLD_ACTIVE_MULTIPLIER = {}".format(cfg.REWARD_HOLD_ACTIVE_MULTIPLIER))
-		self.print_out("REWARD_HOLD_ACTIVE_POSITIVE_CHANGE = {}".format(cfg.REWARD_HOLD_ACTIVE_POSITIVE_CHANGE))
-		self.print_out("REWARD_HOLD_ACTIVE_NEGATIVE_CHANGE = {}".format(cfg.REWARD_HOLD_ACTIVE_NEGATIVE_CHANGE))
+		# self.print_out("REWARD_HOLD_ACTIVE_POSITIVE_CHANGE = {}".format(cfg.REWARD_HOLD_ACTIVE_POSITIVE_CHANGE))
+		# self.print_out("REWARD_HOLD_ACTIVE_NEGATIVE_CHANGE = {}".format(cfg.REWARD_HOLD_ACTIVE_NEGATIVE_CHANGE))
 		self.print_out("REWARD_HOLD_INACTIVE_PRICE_UP = {}".format(cfg.REWARD_HOLD_INACTIVE_PRICE_UP))
 		self.print_out("REWARD_HOLD_INACTIVE_PRICE_DOWN = {}".format(cfg.REWARD_HOLD_INACTIVE_PRICE_DOWN))
 		self.print_out("REWARD_INVALID = {}".format(cfg.REWARD_INVALID))
-
+		self.print_out("")
 		self.print_out("ALGO_NAME = {}".format(cfg.ALGO_NAME))
+		self.print_out("ATTENTION_LAYER = {}".format(cfg.ATTENTION_LAYER))
 		
 		if cfg.ALGO_NAME == cfg.DQN:
 			self.print_out("")

@@ -1,6 +1,7 @@
 import Settings as cfg
 import numpy as np
 import torch
+torch.manual_seed(999)
 
 class Agent():
 	def __init__(self, env, algo, name):
@@ -17,7 +18,11 @@ class Agent():
 			if np.random.random() < epsilon:
 				action = self.env.random_action()
 			else:
-				state_a = np.array([self.env.obs.flatten()], dtype=np.float32, copy=False)
+				# state_a = np.array([self.env.obs.flatten()], dtype=np.float32, copy=False)
+				if cfg.ATTENTION_LAYER:
+					state_a = np.array([self.env.attention_obs], dtype=np.float32, copy=False)
+				else:
+					state_a = np.array([self.env.obs.flatten()], dtype=np.float32, copy=False)
 				state = torch.tensor(state_a).to(device)
 				action = self.algo.action(state)
 
@@ -28,7 +33,11 @@ class Agent():
 		# 	action = self.algo.action(state)
 
 		else:
-			state_a = np.array([self.env.obs.flatten()], dtype=np.float32, copy=False)
+			if cfg.ATTENTION_LAYER:
+				state_a = np.array([self.env.attention_obs], dtype=np.float32, copy=False)
+			else:
+				state_a = np.array([self.env.obs.flatten()], dtype=np.float32, copy=False)
+
 			state = torch.tensor(state_a).to(device)
 			action = self.algo.action(state)
 
