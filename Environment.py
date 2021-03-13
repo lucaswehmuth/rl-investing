@@ -102,6 +102,7 @@ class Environment():
 				# else:
 				# 	reward = -1
 				profit = self.obs.currentClosePrice - buyPrice
+				# reward = profit
 
 				if cfg.END_AFTER_SELL:
 					done = True
@@ -110,21 +111,22 @@ class Environment():
 
 			elif action == cfg.ACTION_HOLD and active == 1:
 				reward = 0
-				if cfg.REWARD_AFTER_PRICE_CHANGE:
-					# reward = cfg.REWARD_HOLD_ACTIVE_MULTIPLIER * (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
-					profit_if_sold = 100 * (self.obs.currentClosePrice - buyPrice) / buyPrice
+				# percent_profit_if_sold = 100 * (self.obs.currentClosePrice - buyPrice) / buyPrice
+				# if percent_profit_if_sold > 0:
+				# 	reward = 0
+				# else:
+				# 	reward = -0.01
 
-					if profit_if_sold >= 5:
-						reward = -0.01
-					elif profit_if_sold > 0:
-						reward = 0
-					else:
-						reward = profit_if_sold
+				if cfg.REWARD_AFTER_PRICE_CHANGE:
+					reward = cfg.REWARD_HOLD_ACTIVE_MULTIPLIER * (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
+					# percent_profit_if_sold = 100 * (self.obs.currentClosePrice - buyPrice) / buyPrice
+					# day_percent_change = 100 * (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
+
 					# reward = cfg.REWARD_HOLD_ACTIVE_MULTIPLIER * (self.obs.currentClosePrice - buyPrice) / buyPrice
 					# reward = (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
 
-					# if reward < 0:
-						# reward *= 10
+					# if percent_profit_if_sold < 0:
+						# reward = percent_profit_if_sold * 100
 
 					# reward = (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
 
@@ -143,8 +145,6 @@ class Environment():
 			# Invalid action
 			else:
 				reward = cfg.REWARD_INVALID
-				# reward = -0.05 * self.episode_steps
-				# reward = -100.0
 				new_state = State(self.data, self.currentDate, buyPrice, active)
 				# action_performed = cfg.ACTION_HOLD
 
@@ -185,6 +185,7 @@ class Environment():
 				# else:
 				# 	reward = -1
 				profit = self.obs.currentClosePrice - buyPrice
+				# reward = profit
 
 				if cfg.END_AFTER_SELL:
 					done = True
@@ -194,24 +195,24 @@ class Environment():
 
 			elif action == cfg.ACTION_HOLD and active == 1:
 				reward = 0
+				# percent_profit_if_sold = 100 * (self.obs.currentClosePrice - buyPrice) / buyPrice
+				# if percent_profit_if_sold > 0:
+				# 	reward = 0
+				# else:
+				# 	reward = -0.01
 				if cfg.REWARD_AFTER_PRICE_CHANGE:
-					# reward = cfg.REWARD_HOLD_ACTIVE_MULTIPLIER * (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
-					profit_if_sold = 100 * (self.obs.currentClosePrice - buyPrice) / buyPrice
+					reward = cfg.REWARD_HOLD_ACTIVE_MULTIPLIER * (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
+					# percent_profit_if_sold = 100 * (self.obs.currentClosePrice - buyPrice) / buyPrice
+					# day_percent_change = 100 * (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
 
-					if profit_if_sold >= 5:
-						reward = -0.01
-					elif profit_if_sold > 0:
-						reward = 0
-					else:
-						reward = profit_if_sold
 					# reward = cfg.REWARD_HOLD_ACTIVE_MULTIPLIER * (self.obs.currentClosePrice - buyPrice) / buyPrice
-					# reward = 100.0 * (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
 					# reward = (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
 
-					# if reward < 0:
-						# reward *= 10
+					# if percent_profit_if_sold < 0:
+						# reward = percent_profit_if_sold * 100
 
-				# new_state = State(self.data, self.currentDate, buyPrice, active)
+					# reward = (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
+
 				new_state = State(self.val_data, self.currentValDate, buyPrice, active)
 
 			elif action == cfg.ACTION_HOLD and active == 0:
@@ -222,17 +223,12 @@ class Environment():
 				# Price went down and we did not buy => Small reward
 				else:
 					reward = cfg.REWARD_HOLD_INACTIVE_PRICE_DOWN
-				# reward = -0.05
-				# reward = -0.01 * self.episode_steps
-				# new_state = State(self.data, self.currentDate, buyPrice, active)
+
 				new_state = State(self.val_data, self.currentValDate, buyPrice, active)
 
 			# Invalid action
 			else:
 				reward = cfg.REWARD_INVALID
-				# reward = -0.05 * self.episode_steps
-				# reward = -100.0
-				# new_state = State(self.data, self.currentDate, buyPrice, active)
 				new_state = State(self.val_data, self.currentValDate, buyPrice, active)
 				# action_performed = cfg.ACTION_HOLD
 
