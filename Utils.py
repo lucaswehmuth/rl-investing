@@ -1,5 +1,7 @@
 import logging
 import Settings as cfg
+from Environment import Environment
+import inspect
 
 class Logger():
 	def __init__(self, filename_path):
@@ -17,6 +19,8 @@ class Logger():
 		self.logger.addHandler(logger_handler)
 
 	def print_run_info(self):
+		self.print_out("************* STEP FUNCTION *************")
+		self.print_out(inspect.getsource(Environment.step))
 		self.print_out("************* RUN INFO *************")
 		self.print_out("DATASET_NAME = {}".format(cfg.DATASET_NAME))
 		self.print_out("MAX_EPISODES = {}".format(cfg.MAX_EPISODES))

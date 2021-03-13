@@ -15,7 +15,8 @@ from tensorboardX import SummaryWriter
 print()
 
 # Torch device (CUDA if available)
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+# device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device("cpu")
 print("DEVICE =", device.type)
 print()
 
@@ -26,8 +27,6 @@ val_data = pd.read_csv(cfg.VAL_DATA)
 # Creating environment
 env = Environment(train_data, val_data)
 env.reset()
-# print(env.obs.shape[0])
-# exit()
 
 ######################## Setting up the algorithm and assigning to the agent ########################
 ## DQN
@@ -121,7 +120,7 @@ for i in range(cfg.MAX_EPISODES):
 				writer.add_scalar('epsilon', epsilon, i)
 			# print("Episode", i, "ended. Mean reward=", mean_reward, "| Mean profit=", mean_profit, "| Total profit/loss =", total_profit_or_loss, "| epsilon =", epsilon)
 			# print("Episode {} ended. Mean reward = {} | Mean profit = {} | Total profit/loss = {} | epsilon = {}".format(i, mean_reward, mean_profit, total_profit_or_loss, epsilon))
-			logger.print_out("Episode {} ended. Mean reward = {} | Mean profit = {} | Total profit/loss = {} | epsilon = {}".format(i, mean_reward, mean_profit, total_profit_or_loss, epsilon))
+			logger.print_out("Episode {} ended. Mean reward = {} | Mean profit = {} | Total profit/loss = {} | epsilon = {}".format(i, mean_reward, mean_profit, total_profit_or_loss, round(epsilon, 3)))
 
 		else:
 			# print("Episode", i, "ended. Mean reward=", mean_reward, "| Mean profit=", mean_profit, "| Total profit/loss =", total_profit_or_loss)
