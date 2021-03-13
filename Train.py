@@ -48,7 +48,7 @@ if cfg._AC_ == 1:
 
 # PPO
 if cfg._PPO_ == 1:
-	from models.PPO2 import PPO
+	from models.PPO import PPO
 	ppo = PPO(env.obs.shape[0], len(env.actions()), device)
 	if (cfg.LOAD_MODEL):
 		ppo.load_checkpoint()
