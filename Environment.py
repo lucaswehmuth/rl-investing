@@ -111,7 +111,15 @@ class Environment():
 			elif action == cfg.ACTION_HOLD and active == 1:
 				reward = 0
 				if cfg.REWARD_AFTER_PRICE_CHANGE:
-					reward = cfg.REWARD_HOLD_ACTIVE_MULTIPLIER * (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
+					# reward = cfg.REWARD_HOLD_ACTIVE_MULTIPLIER * (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
+					profit_if_sold = 100 * (self.obs.currentClosePrice - buyPrice) / buyPrice
+
+					if profit_if_sold >= 5:
+						reward = -0.01
+					elif profit_if_sold > 0:
+						reward = 0
+					else:
+						reward = profit_if_sold
 					# reward = cfg.REWARD_HOLD_ACTIVE_MULTIPLIER * (self.obs.currentClosePrice - buyPrice) / buyPrice
 					# reward = (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
 
@@ -187,7 +195,15 @@ class Environment():
 			elif action == cfg.ACTION_HOLD and active == 1:
 				reward = 0
 				if cfg.REWARD_AFTER_PRICE_CHANGE:
-					reward = cfg.REWARD_HOLD_ACTIVE_MULTIPLIER * (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
+					# reward = cfg.REWARD_HOLD_ACTIVE_MULTIPLIER * (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
+					profit_if_sold = 100 * (self.obs.currentClosePrice - buyPrice) / buyPrice
+
+					if profit_if_sold >= 5:
+						reward = -0.01
+					elif profit_if_sold > 0:
+						reward = 0
+					else:
+						reward = profit_if_sold
 					# reward = cfg.REWARD_HOLD_ACTIVE_MULTIPLIER * (self.obs.currentClosePrice - buyPrice) / buyPrice
 					# reward = 100.0 * (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
 					# reward = (self.obs.currentClosePrice - self.obs.previousDayClosePrice) / self.obs.previousDayClosePrice
