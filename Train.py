@@ -54,7 +54,7 @@ if cfg._PPO_ == 1:
 	agent = Agent(env, ppo, cfg.PPO)
 #####################################################################################################
 
-# Tensorboard 
+# Tensorboard
 run_name = '{}_LR={}_RDTrain={}_RDVal={}_EP{}d_EAS={}_RAPC={}_'.format(cfg.RUN_NAME, cfg.LEARNING_RATE, cfg.RANDOM_START_TRAINING_DATE, cfg.RANDOM_START_VAL_DATE , cfg.EPISODE_LENGTH, cfg.END_AFTER_SELL, cfg.REWARD_AFTER_PRICE_CHANGE)
 date_time = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
 # filename_path = cfg.RUN_FOLDER + run_name + date_time

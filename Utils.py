@@ -1,6 +1,7 @@
 import logging
 import Settings as cfg
 from Environment import Environment
+import os
 import inspect
 
 class Logger():
@@ -94,3 +95,10 @@ class Logger():
 		print()
 		self.print_out("************************************")
 
+	def close(self):
+		# self.logger.handlers.clear()
+		handlers = self.logger.handlers[:]
+		for handler in handlers:
+			handler.close()
+			self.logger.removeHandler(handler)
+		os.system('clear')

@@ -1,3 +1,5 @@
+ALL_DATASETS = ["MMM","AXP","AMGN","AAPL","BA","CAT","CVX","CSCO","KO","DOW","GS","HD","HON","IBM","INTC","JNJ","JPM","MCD","MRK","MSFT","NKE","PG","CRM","TRV","UNH","VZ","V","WBA","WMT","DIS"]
+
 # DATASET_NAME = "Artificial_Cos"
 # ARTIFICIAL_DATA = True
 DATASET_NAME = "CSCO"
@@ -11,12 +13,13 @@ _AC_ = 0
 _PPO_ = 0
 
 # MAX_EPISODES = 1_000_000
-MAX_EPISODES = 100_000
+# MAX_EPISODES = 100_000
+MAX_EPISODES = 100
 
 # Tensorboard logging
 TENSORBOARD_SAVE = True
 # TENSORBOARD_UPDATE = MAX_EPISODES/100
-TENSORBOARD_UPDATE = 100
+TENSORBOARD_UPDATE = 10
 
 # Output logging
 LOG_OUTPUTS = True
@@ -82,7 +85,10 @@ if _AC_ == 1:
 if _PPO_ == 1:
 	ALGO_NAME = PPO
 
-RUN_NAME = "attention_{}_{}".format(ALGO_NAME, DATASET_NAME)
+if ATTENTION_LAYER:
+	RUN_NAME = "attention_{}_{}".format(ALGO_NAME, DATASET_NAME)
+else:
+	RUN_NAME = "{}_{}".format(ALGO_NAME, DATASET_NAME)
 
 if ARTIFICIAL_DATA:
 	RUN_FOLDER = "runs_artificial/"

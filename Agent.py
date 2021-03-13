@@ -63,3 +63,6 @@ class Agent():
 
 	def update(self, ep, writer):
 		self.algo.update(ep, writer)
+
+	def clear_memory(self):
+		torch.cuda.empty_cache()
