@@ -59,11 +59,11 @@ class SimpleAttention(nn.Module):
   def fit(self, X, y):
       device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
       self.train()
-      X = torch.tensor([X])
-      y = torch.tensor([y])
+      X = torch.tensor([X]).to(device)
+      y = torch.tensor([y]).to(device)
       y = y.type(torch.FloatTensor)
       X = X.type(torch.FloatTensor)
-      X, y = X.to(device), y.to(device)
+      # X, y = X.to(device), y.to(device)
 
       self.optimizer.zero_grad()
       attention_probs, y_ = self(X)

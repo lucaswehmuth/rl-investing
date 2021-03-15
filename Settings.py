@@ -2,10 +2,10 @@ ALL_DATASETS = ["MMM","AXP","AMGN","AAPL","BA","CAT","CVX","CSCO","KO","DOW","GS
 
 # DATASET_NAME = "Artificial_Cos"
 # ARTIFICIAL_DATA = True
-DATASET_NAME = "CSCO"
+DATASET_NAME = "JNJ"
 ARTIFICIAL_DATA = False
 
-ATTENTION_LAYER = False
+ATTENTION_LAYER = True
 
 # Flags for the current algo being used
 _DQN_ = 1

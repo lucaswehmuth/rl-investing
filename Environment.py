@@ -149,11 +149,14 @@ class Environment():
 			new_current_price = new_state.currentClosePrice
 			attention_probs = self.attention.fit(self.obs.flatten(), new_current_price)
 			attention_probs = attention_probs.detach().numpy()[0]
+			attention_probs[-1] = 1
+			attention_probs[-2] = 1
 			self.attention_probs = [round(x, 4) for x in attention_probs]
 			self.attention_obs = [round(a*b, 4) for a,b in zip(new_state.flatten(), attention_probs)]
-
-		self.obs = new_state
-		return new_state.flatten(), reward, done, action_performed, profit
+			return self.attention_obs, reward, done, action_performed, profit
+		else:
+			self.obs = new_state
+			return new_state.flatten(), reward, done, action_performed, profit
 
 class State():
 	def __init__(self, df, currentDate, buyPrice, hasStock):
