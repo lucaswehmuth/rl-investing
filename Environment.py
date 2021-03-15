@@ -153,6 +153,7 @@ class Environment():
 			attention_probs[-2] = 1
 			self.attention_probs = [round(x, 4) for x in attention_probs]
 			self.attention_obs = [round(a*b, 4) for a,b in zip(new_state.flatten(), attention_probs)]
+			self.obs = new_state
 			return self.attention_obs, reward, done, action_performed, profit
 		else:
 			self.obs = new_state
