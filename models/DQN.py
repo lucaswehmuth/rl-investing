@@ -88,10 +88,12 @@ class ExperienceBuffer:
 
 class DQN():
     def __init__(self, obs_len, actions_n, device):
-        self.qnet_local = TestDQN(obs_len, actions_n).to(device)
-        self.qnet_target = TestDQN(obs_len, actions_n).to(device)
-        # print(self.qnet_local)
-        # print(self.qnet_target)
+        if cfg.ATTENTION_LAYER:
+            self.qnet_local = AttentionDQN(obs_len, actions_n).to(device)
+            self.qnet_target = AttentionDQN(obs_len, actions_n).to(device)
+        else:
+            self.qnet_local = TestDQN(obs_len, actions_n).to(device)
+            self.qnet_target = TestDQN(obs_len, actions_n).to(device)
         self.optimizer = optim.Adam(self.qnet_local.parameters(), lr=cfg.DQN_LEARNING_RATE)
         self.exp_buffer = ExperienceBuffer(cfg.DQN_EXPERIENCE_BUFFER_SIZE)
         self.device = device
@@ -189,6 +191,50 @@ class SimpleFFDQN(nn.Module):
         # return val + adv - adv.mean(dim=1, keepdim=True)
         # return val + adv - adv.mean()
 
+class Multiply(nn.Module):
+  def __init__(self):
+    super(Multiply, self).__init__()
+
+  def forward(self, tensors):
+    result = torch.ones(tensors[0].size())
+    for t in tensors:
+      result *= t
+    return result
+
+class AttentionDQN(nn.Module):
+    def __init__(self, obs_len, actions_n):
+        super(AttentionDQN, self).__init__()
+
+        # Attention mechanism
+        self.attention_probs = nn.Linear(obs_len, obs_len)
+        self.soft = nn.Softmax(dim=1)
+        self.multiply = Multiply()
+
+        self.fc1 = nn.Sequential(
+            nn.Linear(obs_len, 256),
+            nn.ReLU(),
+            nn.Linear(256, 256),
+            nn.ReLU(),
+            nn.Linear(256, actions_n)
+        )
+
+        # self.attention_mul_l1 = nn.Linear(obs_len, 64)
+        # self.out = nn.Linear(64,1)
+        # self.sigmoid = nn.Sigmoid()
+
+    def forward(self, x):
+        attention_probs = self.attention_probs(x)
+        attention_probs_soft = self.soft(attention_probs)
+        attention_mul = self.multiply([x, attention_probs_soft])
+
+        out = self.fc1(attention_mul)
+
+        # output = self.attention_mul_l1(attention_mul)
+        # out = self.out(output)
+        # out_ = self.sigmoid(out)
+
+        return out
+
 class TestDQN(nn.Module):
     def __init__(self, obs_len, actions_n):
         super(TestDQN, self).__init__()
@@ -200,7 +246,6 @@ class TestDQN(nn.Module):
             nn.ReLU(),
             nn.Linear(256, actions_n)
         )
-
         # self.softmax = nn.Softmax(dim=1)
 
     def forward(self, x):
